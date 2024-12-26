@@ -50,14 +50,14 @@ package controllers
 	
 		// Verifikasi password
 		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email atau password"})
 			return
 		}
 	
 		// Generate JWT token
 		token, err := GenerateJWT(user)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Tidak Dapat Membuat Token"})
 			return
 		}
 	
