@@ -11,7 +11,7 @@ import (
 
 var jwtKey = []byte("secret_key_for_jwt") // Key untuk verifikasi token JWT
 
-// Struktur untuk claims JWT
+// Struktur claim jwt
 type Claims struct {
 	Username string `json:"username"`
 	jwt.RegisteredClaims
