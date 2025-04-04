@@ -1,19 +1,22 @@
 package middleware
 
 import (
-	"fmt"
+	"ecom-be/models"
 	"net/http"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 )
-
-var jwtKey = []byte("secret_key_for_jwt") // Key untuk verifikasi token JWT
 
 // Struktur claim jwt
 type Claims struct {
-	Username string `json:"username"`
+	UserID uint   `json:"user_id"`
+	Email  string `json:"email"`
+	Role   string `json:"role"`
 	jwt.RegisteredClaims
 }
 
@@ -40,7 +43,7 @@ func AuthRequired() gin.HandlerFunc {
 
 		// Parsing token
 		token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-			return jwtKey, nil
+			return []byte(os.Getenv("JWT_SECRET")), nil
 		})
 
 		if err != nil || !token.Valid {
@@ -56,4 +59,55 @@ func AuthRequired() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+// AdminRequired memastikan user adalah admin
+func AdminRequired() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Pastikan sudah melalui AuthRequired
+		userClaims, exists := c.Get("user")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.Abort()
+			return
+		}
+
+		claims, ok := userClaims.(*Claims)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse user claims"})
+			c.Abort()
+			return
+		}
+
+		// Cek apakah user memiliki role admin
+		if claims.Role != "admin" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
+
+// GenerateToken membuat token JWT baru untuk user
+func GenerateToken(user models.User) (string, error) {
+	expirationTime := time.Now().Add(24 * time.Hour) // Token berlaku 24 jam
+	
+	claims := &Claims{
+		UserID: user.ID,
+		Email:  user.Email,
+		Role:   user.Role,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			ID:        uuid.New().String(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+
+	return tokenString, err
 }

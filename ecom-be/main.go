@@ -1,16 +1,33 @@
 package main
 
 import (
-    "ecom-be/routes"
-    "github.com/gin-gonic/gin"
+	"ecom-be/config"
+	"ecom-be/routes"
+	"fmt"
+	"log"
+	"os"
 )
 
-
 func main() {
+	// Load environment variables
+	config.LoadEnv()
 	
-    r := routes.SetupRouter()
-
-    // Menjalankan server
-    r.Run(":8080") // Menggunakan port 8080
+	// Connect ke database
+	config.ConnectDatabase()
+	
+	// Setup router
+	r := routes.SetupRouter()
+	
+	// Set port
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	
+	// Jalankan server
+	log.Printf("Server berjalan di port %s", port)
+	if err := r.Run(":" + port); err != nil {
+		fmt.Printf("Gagal menjalankan server: %v", err)
+	}
 }
 
