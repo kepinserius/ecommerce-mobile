@@ -212,7 +212,7 @@ VALUES
 
 ## Kontributor
 
-- [Nama Kontributor](https://github.com/kepinserius)
+- [kepinganteng](https://github.com/kepinserius)
 
 ## Kontak
 
