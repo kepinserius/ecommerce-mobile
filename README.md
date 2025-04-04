@@ -212,8 +212,8 @@ VALUES
 
 ## Kontributor
 
-- [Nama Kontributor](https://github.com/username)
+- [Nama Kontributor](https://github.com/kepinserius)
 
 ## Kontak
 
-Untuk pertanyaan atau saran, hubungi kami di [email@example.com](mailto:email@example.com)
+Untuk pertanyaan atau saran, hubungi kami di [kevingw23@gmail.com]
